@@ -1,8 +1,12 @@
 import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#cfe7c9')
+
+// GLTF
+const gltfLoader = new GLTFLoader()
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
@@ -61,3 +65,22 @@ const groundMaterial = new THREE.MeshStandardMaterial({
 const ground = new THREE.Mesh(groundGeometry, groundMaterial)
 ground.rotation.x = -Math.PI / 2
 scene.add(ground)
+
+// Lumberjack model
+let playerModel: THREE.Object3D | null = null
+
+gltfLoader.load(
+    './public/models/pillager_lumberjack/scene.gltf',
+    (gltf) => {
+        playerModel = gltf.scene
+
+        playerModel.position.set(0, 0, 0)
+        playerModel.scale.set(1, 1, 1)
+
+        scene.add(playerModel)
+    },
+    undefined,
+    (error) => {
+        console.error('GLTF load error: ', error)
+    }
+)

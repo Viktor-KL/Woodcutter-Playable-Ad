@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pillager lumberjack
+* source:	https://sketchfab.com/3d-models/pillager-lumberjack-e474f77f683647408b426aea81bf3c0b
+* author:	бобер/bober (https://sketchfab.com/sazonovnikita296)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pillager lumberjack" (https://sketchfab.com/3d-models/pillager-lumberjack-e474f77f683647408b426aea81bf3c0b) by бобер/bober (https://sketchfab.com/sazonovnikita296) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
