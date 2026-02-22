@@ -8,6 +8,7 @@ const TREE_MIN_DISTANCE = 3.5
 const CHOP_HIT_RADIUS = 1.2
 
 const tweenGroup = new Group()
+const textureLoader = new THREE.TextureLoader()
 
 // Scene
 const scene = new THREE.Scene()
@@ -53,7 +54,7 @@ const dirLight = new THREE.DirectionalLight(
 dirLight.position.set(8, 14, 10)
 scene.add(dirLight)
 
-// Ground
+// --- Ground ---
 const groundGeometry = new THREE.CircleGeometry(40, 48)
 const groundMaterial = new THREE.MeshStandardMaterial({
     color: '#88b36e',
@@ -63,6 +64,27 @@ const groundMaterial = new THREE.MeshStandardMaterial({
 const ground = new THREE.Mesh(groundGeometry, groundMaterial)
 ground.rotation.x = -Math.PI / 2
 scene.add(ground)
+
+// Ground [ Base Pad ]
+const baseRoot = new THREE.Group()
+baseRoot.position.set(0, 0, 0)
+scene.add(baseRoot)
+
+const baseTexture = textureLoader.load('/textures/money-texture.png')
+baseTexture.wrapS = THREE.RepeatWrapping
+baseTexture.wrapT = THREE.RepeatWrapping
+baseTexture.repeat.set(1, 1)
+
+const basePad = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.2, 1.2, .01, 24),
+    new THREE.MeshStandardMaterial({
+        map: baseTexture,
+        emissive: 'yellow',
+        emissiveIntensity: .5
+    })
+)
+basePad.position.y = 0
+baseRoot.add(basePad)
 
 // --- Models loading ---
 const playerRoot = new THREE.Group()
@@ -177,7 +199,7 @@ function chopTree(tree: TreeEntity): void {
     tree.alive = false
 
     chopSound.currentTime = 0
-    void chopSound.play().catch(() => {})
+    void chopSound.play().catch(() => { })
 
     const fallX = (Math.random() * 2 - 1) * .45
     const fallZ = (Math.random() * 2 - 1) * .45
