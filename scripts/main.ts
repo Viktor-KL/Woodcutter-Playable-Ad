@@ -25,13 +25,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 document.body.appendChild(renderer.domElement)
 
-function animate(): void {
-    requestAnimationFrame(animate)
-    renderer.render(scene, camera)
-}
-
-animate()
-
 // Resize handling
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight
@@ -73,14 +66,14 @@ scene.add(playerRoot)
 let playerModel: THREE.Object3D | null = null
 
 gltfLoader.load(
-    './public/models/pillager_lumberjack/scene.gltf',
+    './models/pillager_lumberjack/scene.gltf',
     (gltf) => {
         playerModel = gltf.scene
 
         playerModel.position.set(0, 0, 0)
         playerModel.scale.set(1, 1, 1)
 
-        scene.add(playerModel)
+        playerRoot.add(playerModel)
     },
     undefined,
     (error) => {
@@ -171,3 +164,52 @@ function endJoystick(e: PointerEvent): void {
 
 joyBase.addEventListener('pointerup', endJoystick)
 joyBase.addEventListener('pointercancel', endJoystick)
+
+// Moving
+const clock = new THREE.Clock()
+const cameraTargetPos = new THREE.Vector3()
+
+const MOVE_SPEED = 4.5
+
+function normalizeAngle(a: number): number {
+    while (a > Math.PI) a -= Math.PI * 2
+    while (a < -Math.PI) a += Math.PI * 2
+
+    return a
+}
+
+// Animate
+function animate(): void {
+    requestAnimationFrame(animate)
+
+    const delta = Math.min(clock.getDelta(), 0.033)
+
+    playerRoot.position.x += joy.x * MOVE_SPEED * delta
+    playerRoot.position.z += joy.y * MOVE_SPEED * delta
+
+    cameraTargetPos.set(
+        playerRoot.position.x,
+        playerRoot.position.y + 8,
+        playerRoot.position.z + 10
+    )
+
+    camera.position.lerp(cameraTargetPos, 0.08)
+
+    camera.lookAt(
+        playerRoot.position.x,
+        playerRoot.position.y + 1,
+        playerRoot.position.z
+    )
+
+    if (Math.abs(joy.x) > .01 || Math.abs(joy.y) > .01) {
+        const targetYaw = Math.atan2(joy.x, joy.y) + Math.PI
+        const currentYaw = playerRoot.rotation.y
+
+        const deltaYaw = normalizeAngle(targetYaw - currentYaw)
+        playerRoot.rotation.y = currentYaw + deltaYaw * .2
+    }
+
+    renderer.render(scene, camera)
+}
+
+animate()
