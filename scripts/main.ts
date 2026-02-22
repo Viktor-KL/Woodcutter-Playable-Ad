@@ -91,6 +91,9 @@ type TreeEntity = {
 const trees: TreeEntity[] = []
 let treePrefab: THREE.Object3D | null = null
 
+const chopSound = new Audio('/public/sounds/tree-cutting-sound.wav')
+chopSound.volume = .4
+
 loadGltf('/models/tree/scene.gltf', (gltf) => {
     treePrefab = gltf.scene
     treePrefab.scale.set(3, 3, 3)
@@ -173,13 +176,24 @@ function tryChopTrees(): void {
 function chopTree(tree: TreeEntity): void {
     tree.alive = false
 
-    new Tween(tree.root.scale, tweenGroup)
+    chopSound.currentTime = 0
+    void chopSound.play().catch(() => {})
+
+    const fallX = (Math.random() * 2 - 1) * .45
+    const fallZ = (Math.random() * 2 - 1) * .45
+
+    const fallTween = new Tween(tree.root.rotation, tweenGroup)
+        .to({ x: fallX, z: fallZ }, 140)
+        .easing(Easing.Quadratic.Out)
+
+    const shrinkTween = new Tween(tree.root.scale, tweenGroup)
         .to({ x: .01, y: .01, z: .01 }, 180)
         .easing(Easing.Quadratic.Out)
         .onComplete(() => {
             forestRoot.remove(tree.root)
         })
-        .start()
+
+    fallTween.chain(shrinkTween).start()
 }
 
 // Models [ Axe ]
