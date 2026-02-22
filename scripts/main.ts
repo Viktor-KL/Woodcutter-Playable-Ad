@@ -1,6 +1,9 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
+const MOVE_SPEED = 4.5
+const WORLD_LIMIT = 18
+
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#cfe7c9')
@@ -169,8 +172,6 @@ joyBase.addEventListener('pointercancel', endJoystick)
 const clock = new THREE.Clock()
 const cameraTargetPos = new THREE.Vector3()
 
-const MOVE_SPEED = 4.5
-
 function normalizeAngle(a: number): number {
     while (a > Math.PI) a -= Math.PI * 2
     while (a < -Math.PI) a += Math.PI * 2
@@ -208,6 +209,18 @@ function animate(): void {
         const deltaYaw = normalizeAngle(targetYaw - currentYaw)
         playerRoot.rotation.y = currentYaw + deltaYaw * .2
     }
+
+    playerRoot.position.x = THREE.MathUtils.clamp(
+        playerRoot.position.x,
+        -WORLD_LIMIT,
+        WORLD_LIMIT
+    )
+
+    playerRoot.position.z = THREE.MathUtils.clamp(
+        playerRoot.position.z,
+        -WORLD_LIMIT,
+        WORLD_LIMIT
+    )
 
     renderer.render(scene, camera)
 }
