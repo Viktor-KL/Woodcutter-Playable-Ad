@@ -6,6 +6,8 @@ const MOVE_SPEED = 4.5
 const WORLD_LIMIT = 18
 const TREE_MIN_DISTANCE = 3.5
 const CHOP_HIT_RADIUS = 1.2
+const BASE_RADIUS = 1.4
+const BASE_CONVERT_INTERVAL = .8
 
 const tweenGroup = new Group()
 const textureLoader = new THREE.TextureLoader()
@@ -85,6 +87,14 @@ const basePad = new THREE.Mesh(
 )
 basePad.position.y = 0
 baseRoot.add(basePad)
+
+function isPlayerInBaseZone(): boolean {
+    const dx = playerRoot.position.x - baseRoot.position.x
+    const dz = playerRoot.position.z - baseRoot.position.z
+    const distanceXZ = Math.hypot(dx, dz)
+
+    return distanceXZ <= BASE_RADIUS
+}
 
 // --- Models loading ---
 const playerRoot = new THREE.Group()
@@ -197,6 +207,7 @@ function tryChopTrees(): void {
 
 function chopTree(tree: TreeEntity): void {
     tree.alive = false
+    woodCount += 1
 
     chopSound.currentTime = 0
     void chopSound.play().catch(() => { })
@@ -345,6 +356,14 @@ function normalizeAngle(a: number): number {
     return a
 }
 
+// --- Main Game Logic ---
+let woodCount = 0
+let money = 0
+let baseConvertTimer = 0
+
+const convertSound = new Audio('/public/sounds/convert.mp3')
+convertSound.volume = .4
+
 // Animate
 function animate(): void {
     requestAnimationFrame(animate)
@@ -391,9 +410,25 @@ function animate(): void {
     tweenGroup.update()
     axePivot.rotation.y = axeAnim.angle
 
+    // Woods chopping
     if (axeModel) {
         axeModel.getWorldPosition(axeWorldPos)
         tryChopTrees()
+    }
+
+    // Money convertation
+    baseConvertTimer = Math.max(0, baseConvertTimer - delta)
+
+    if (isPlayerInBaseZone() && woodCount > 0 && baseConvertTimer <= 0) {
+        const woodPrice = THREE.MathUtils.randFloat(10, 20)
+        woodCount -= 1
+        money += woodPrice
+        baseConvertTimer = BASE_CONVERT_INTERVAL
+
+        convertSound.currentTime = 0
+        void convertSound.play().catch(() => { })
+
+        console.log('wood: ', woodCount, 'money: ', money)
     }
 
     renderer.render(scene, camera)
