@@ -1,15 +1,16 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { loadGltf } from './loaders/loadGltf'
+import { Tween, Easing, Group } from '@tweenjs/tween.js'
 
 const MOVE_SPEED = 4.5
 const WORLD_LIMIT = 18
+const TREE_MIN_DISTANCE = 3.5
+
+const tweenGroup = new Group()
 
 // Scene
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#cfe7c9')
-
-// GLTF
-const gltfLoader = new GLTFLoader()
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
@@ -62,27 +63,92 @@ const ground = new THREE.Mesh(groundGeometry, groundMaterial)
 ground.rotation.x = -Math.PI / 2
 scene.add(ground)
 
-// Lumberjack model
+// --- Models loading ---
 const playerRoot = new THREE.Group()
-scene.add(playerRoot)
+const forestRoot = new THREE.Group()
+scene.add(playerRoot, forestRoot)
 
 let playerModel: THREE.Object3D | null = null
 
-gltfLoader.load(
-    './models/pillager_lumberjack/scene.gltf',
-    (gltf) => {
-        playerModel = gltf.scene
+loadGltf('/models/lumberjack/scene.gltf', (gltf) => {
+    playerModel = gltf.scene
 
-        playerModel.position.set(0, 0, 0)
-        playerModel.scale.set(1, 1, 1)
+    playerModel.position.set(0, 0, 0)
+    playerModel.scale.set(1, 1, 1)
 
-        playerRoot.add(playerModel)
-    },
-    undefined,
-    (error) => {
-        console.error('GLTF load error: ', error)
+    playerRoot.add(playerModel)
+})
+
+// Models [Forest]
+type TreeEntity = {
+    root: THREE.Group
+    alive: boolean
+}
+
+const trees: TreeEntity[] = []
+let treePrefab: THREE.Object3D | null = null
+
+loadGltf('/models/tree/scene.gltf', (gltf) => {
+    treePrefab = gltf.scene
+    treePrefab.scale.set(3, 3, 3)
+
+    spawnForest(80)
+})
+
+function spawnTree(x: number, z: number): void {
+    if (!treePrefab) return
+
+    const treeRoot = new THREE.Group()
+    treeRoot.position.set(x, 0, z)
+    treeRoot.rotation.y = Math.random() + Math.PI * 2
+
+    const treeClone = treePrefab.clone()
+    treeRoot.add(treeClone)
+
+    forestRoot.add(treeRoot)
+    trees.push({
+        root: treeRoot,
+        alive: true
+    })
+}
+
+function spawnForest(count: number): void {
+    const maxAttemptsPerTree = 5
+
+    for (let i = 0; i < count; i += 1) {
+        let placed = false
+
+        for (let attempt = 0; attempt < maxAttemptsPerTree; attempt += 1) {
+            const angle = Math.random() * Math.PI * 2
+            const radius = THREE.MathUtils.randFloat(5, WORLD_LIMIT - 1)
+
+            const x = Math.cos(angle) * radius
+            const z = Math.sin(angle) * radius
+
+            if (!canPlaceTree(x, z)) continue
+
+            spawnTree(x, z)
+            placed = true
+            break
+        }
+
+        if (!placed) { }
     }
-)
+}
+
+function canPlaceTree(x: number, z: number): boolean {
+    for (const tree of trees) {
+        const dx = x - tree.root.position.x
+        const dz = z - tree.root.position.z
+        const dist = Math.hypot(dx, dz)
+
+        if (dist < TREE_MIN_DISTANCE) {
+            return false
+        }
+    }
+
+    return true
+}
 
 // Joystick
 const joyBase = document.getElementById('joy-base') as HTMLDivElement
