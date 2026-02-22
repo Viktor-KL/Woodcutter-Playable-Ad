@@ -5,7 +5,7 @@ import { Tween, Easing, Group } from '@tweenjs/tween.js'
 const MOVE_SPEED = 4.5
 const WORLD_LIMIT = 18
 const TREE_MIN_DISTANCE = 3.5
-const CHOP_HIT_RADIUS = 1
+const CHOP_HIT_RADIUS = 1.2
 
 const tweenGroup = new Group()
 
@@ -164,11 +164,22 @@ function tryChopTrees(): void {
         const distanceXZ = Math.hypot(dx, dz)
 
         if (distanceXZ <= CHOP_HIT_RADIUS) {
-            tree.alive = false
-            forestRoot.remove(tree.root)
+            chopTree(tree)
             break
         }
     }
+}
+
+function chopTree(tree: TreeEntity): void {
+    tree.alive = false
+
+    new Tween(tree.root.scale, tweenGroup)
+        .to({ x: .01, y: .01, z: .01 }, 180)
+        .easing(Easing.Quadratic.Out)
+        .onComplete(() => {
+            forestRoot.remove(tree.root)
+        })
+        .start()
 }
 
 // Models [ Axe ]
