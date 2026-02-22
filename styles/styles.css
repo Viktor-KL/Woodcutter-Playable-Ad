@@ -4,6 +4,8 @@
     margin: 0;
 }
 
+/* Joystick */
+
 #joystick {
     position: fixed;
     left: 50%;
@@ -32,4 +34,66 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* HUD */
+#hud {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.hud-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    min-width: 120px;
+    padding: 8px 12px;
+    border-radius: 12px;
+
+    background: rgba(20, 24, 18, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #f7f1d0;
+
+    font-family: sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(4px);
+}
+
+.hud-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.hud-value {
+    display: inline-block;
+    min-width: 28px;
+    text-align: right;
+}
+
+.hud-value.pop {
+    animation: HUDPop 160ms ease-out
+}
+
+/* Animations */
+@keyframes HUDPop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }

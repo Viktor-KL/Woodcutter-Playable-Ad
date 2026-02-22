@@ -359,10 +359,21 @@ function normalizeAngle(a: number): number {
 // --- Main Game Logic ---
 let woodCount = 0
 let money = 0
+let prevWood = -1
+let prevMoney = -1
 let baseConvertTimer = 0
+
+const woodValueEl = document.getElementById('wood-value') as HTMLSpanElement
+const moneyValueEl = document.getElementById('money-value') as HTMLSpanElement
 
 const convertSound = new Audio('/public/sounds/convert.mp3')
 convertSound.volume = .4
+
+function trigerHudPop(el: HTMLElement): void {
+    el.classList.remove('pop')
+    void el.offsetWidth
+    el.classList.add('pop')
+}
 
 // Animate
 function animate(): void {
@@ -418,6 +429,18 @@ function animate(): void {
 
     // Money convertation
     baseConvertTimer = Math.max(0, baseConvertTimer - delta)
+
+    if (woodCount !== prevWood) {
+        woodValueEl.textContent = String(woodCount)
+        trigerHudPop(woodValueEl)
+        prevWood = woodCount
+    }
+
+    if (money !== prevMoney) {
+        moneyValueEl.textContent = money.toFixed(0)
+        trigerHudPop(moneyValueEl)
+        prevMoney = money
+    }
 
     if (isPlayerInBaseZone() && woodCount > 0 && baseConvertTimer <= 0) {
         const woodPrice = THREE.MathUtils.randFloat(10, 20)
