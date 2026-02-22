@@ -5,6 +5,7 @@ import { Tween, Easing, Group } from '@tweenjs/tween.js'
 const MOVE_SPEED = 4.5
 const WORLD_LIMIT = 18
 const TREE_MIN_DISTANCE = 3.5
+const CHOP_HIT_RADIUS = 1
 
 const tweenGroup = new Group()
 
@@ -152,6 +153,24 @@ function canPlaceTree(x: number, z: number): boolean {
     return true
 }
 
+function tryChopTrees(): void {
+    if (!axeModel) return
+
+    for (const tree of trees) {
+        if (!tree.alive) continue
+
+        const dx = axeWorldPos.x - tree.root.position.x
+        const dz = axeWorldPos.z - tree.root.position.z
+        const distanceXZ = Math.hypot(dx, dz)
+
+        if (distanceXZ <= CHOP_HIT_RADIUS) {
+            tree.alive = false
+            forestRoot.remove(tree.root)
+            break
+        }
+    }
+}
+
 // Models [ Axe ]
 let axeModel: THREE.Object3D | null = null
 const axeAnim = {
@@ -270,6 +289,7 @@ joyBase.addEventListener('pointercancel', endJoystick)
 // Moving
 const clock = new THREE.Clock()
 const cameraTargetPos = new THREE.Vector3()
+const axeWorldPos = new THREE.Vector3()
 
 function normalizeAngle(a: number): number {
     while (a > Math.PI) a -= Math.PI * 2
@@ -323,6 +343,11 @@ function animate(): void {
 
     tweenGroup.update()
     axePivot.rotation.y = axeAnim.angle
+
+    if (axeModel) {
+        axeModel.getWorldPosition(axeWorldPos)
+        tryChopTrees()
+    }
 
     renderer.render(scene, camera)
 }
