@@ -14,7 +14,7 @@ scene.background = new THREE.Color('#cfe7c9')
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
-    75,
+    60,
     window.innerWidth / window.innerHeight,
     .1,
     200
@@ -65,7 +65,9 @@ scene.add(ground)
 
 // --- Models loading ---
 const playerRoot = new THREE.Group()
+const playerVisual = new THREE.Group()
 const forestRoot = new THREE.Group()
+playerRoot.add(playerVisual)
 scene.add(playerRoot, forestRoot)
 
 let playerModel: THREE.Object3D | null = null
@@ -76,7 +78,7 @@ loadGltf('/models/lumberjack/scene.gltf', (gltf) => {
     playerModel.position.set(0, 0, 0)
     playerModel.scale.set(1, 1, 1)
 
-    playerRoot.add(playerModel)
+    playerVisual.add(playerModel)
 })
 
 // Models [Forest]
@@ -149,6 +151,37 @@ function canPlaceTree(x: number, z: number): boolean {
 
     return true
 }
+
+// Models [ Axe ]
+let axeModel: THREE.Object3D | null = null
+const axeAnim = {
+    angle: 0,
+}
+
+new Tween(axeAnim, tweenGroup)
+    .to({ angle: -Math.PI * 2 }, 1100)
+    .easing(Easing.Linear.None)
+    .repeat(Infinity)
+    .onRepeat(() => {
+        axeAnim.angle = 0
+    })
+    .start()
+
+const axePivot = new THREE.Group()
+axePivot.position.set(0, 1, 0)
+playerRoot.add(axePivot)
+
+loadGltf('/models/axe/scene.gltf', (gltf) => {
+    axeModel = gltf.scene
+
+    axeModel.scale.set(1, 1, 1)
+    axeModel.position.set(0, .5, .5)
+    axeModel.rotation.set(Math.PI / 2,
+        0,
+        Math.PI / 4)
+
+    axePivot.add(axeModel)
+})
 
 // Joystick
 const joyBase = document.getElementById('joy-base') as HTMLDivElement
@@ -256,24 +289,24 @@ function animate(): void {
 
     cameraTargetPos.set(
         playerRoot.position.x,
-        playerRoot.position.y + 8,
-        playerRoot.position.z + 10
+        playerRoot.position.y + 10,
+        playerRoot.position.z + 9
     )
 
     camera.position.lerp(cameraTargetPos, 0.08)
 
     camera.lookAt(
         playerRoot.position.x,
-        playerRoot.position.y + 1,
+        playerRoot.position.y + 1.8,
         playerRoot.position.z
     )
 
     if (Math.abs(joy.x) > .01 || Math.abs(joy.y) > .01) {
         const targetYaw = Math.atan2(joy.x, joy.y) + Math.PI
-        const currentYaw = playerRoot.rotation.y
+        const currentYaw = playerVisual.rotation.y
 
         const deltaYaw = normalizeAngle(targetYaw - currentYaw)
-        playerRoot.rotation.y = currentYaw + deltaYaw * .2
+        playerVisual.rotation.y = currentYaw + deltaYaw * .2
     }
 
     playerRoot.position.x = THREE.MathUtils.clamp(
@@ -287,6 +320,9 @@ function animate(): void {
         -WORLD_LIMIT,
         WORLD_LIMIT
     )
+
+    tweenGroup.update()
+    axePivot.rotation.y = axeAnim.angle
 
     renderer.render(scene, camera)
 }
