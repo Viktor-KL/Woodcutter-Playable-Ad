@@ -125,7 +125,7 @@ type TreeEntity = {
 const trees: TreeEntity[] = []
 let treePrefab: THREE.Object3D | null = null
 
-const chopSound = new Audio('/public/sounds/tree-cutting-sound.wav')
+const chopSound = new Audio('/sounds/tree-cutting-sound.wav')
 chopSound.volume = .4
 
 loadGltf('/models/tree/scene.gltf', (gltf) => {
