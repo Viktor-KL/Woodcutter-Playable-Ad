@@ -5,6 +5,10 @@
     font-family: sans-serif;
 }
 
+html, body {
+    background: #cfe7c9;
+}
+
 .container {
     position: relative;
     width: 100%;
