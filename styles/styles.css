@@ -2,6 +2,7 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
+    font-family: sans-serif;
 }
 
 /* Joystick */
@@ -85,14 +86,94 @@
     animation: HUDPop 160ms ease-out
 }
 
+/* Win / Lose overlay */
+
+.hidden {
+    display: none !important;
+}
+
+
+.result-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 14, 10, 0.35);
+    backdrop-filter: blur(6px);
+}
+
+.result-card {
+    width: min(360px, calc(100vw - 32px));
+    border-radius: 18px;
+    padding: 20px 18px;
+    background: rgba(20, 24, 18, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+    color: #fff7d1;
+    text-align: center;
+}
+
+.result-title {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.result-subtitle {
+    margin-top: 8px;
+    font-size: 14px;
+    color: rgba(255, 247, 209, 0.82);
+}
+
+.cta-button {
+    margin-top: 16px;
+    width: 100%;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #2d2200;
+    background: linear-gradient(180deg, #ffe27a, #ffbe29);
+    box-shadow: 0 8px 18px rgba(255, 190, 41, 0.25);
+    cursor: pointer;
+    animation: ctaPulse 1200ms ease-in-out infinite;
+    transform-origin: center;
+}
+
+.result-icon {
+    max-width: 100% !important;
+}
+
 /* Animations */
+@keyframes ctaPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 8px 18px rgba(255, 190, 41, 0.25);
+    }
+
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 12px 26px rgba(255, 190, 41, 0.4);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 8px 18px rgba(255, 190, 41, 0.25);
+    }
+}
+
 @keyframes HUDPop {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(2);
     }
+
     100% {
         transform: scale(1);
     }

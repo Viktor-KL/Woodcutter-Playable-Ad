@@ -12,12 +12,42 @@
 
   <div id="hud">
     <div class="hud-pill">
+      <span class="hud-icon">⏱️</span>
+      <span class="hud-value" id="time-value">30</span>
+    </div>
+    <div class="hud-pill">
+      <span class="hud-icon">🎯</span>
+      <span class="hud-value" id="goal-value">111$</span>
+    </div>
+    <div class="hud-pill">
       <span class="hud-icon">🪵</span>
       <span class="hud-value" id="wood-value">0</span>
     </div>
     <div class="hud-pill">
       <span class="hud-icon">💰</span>
       <span class="hud-value" id="money-value">0</span>
+    </div>
+  </div>
+
+  <div id="win-overlay" class="result-overlay hidden">
+    <div class="result-card">
+      <div class="result-title">🎉 You Win! 🎉</div>
+      <a href="#">
+        <img class="result-icon" src="./public/appIcon.png" alt="app icon">
+      </a>
+      <div class="result-subtitle">Great job. Keep going!</div>
+      <button class="cta-button" id="win-cta-button">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <div id="lose-overlay" class="result-overlay hidden">
+    <div class="result-card">
+      <div class="result-title">😡 Time Up 😡</div>
+      <a href="#">
+        <img class="result-icon" src="./public/appIcon.png" alt="app icon">
+      </a>
+      <div class="result-subtitle">Try again and earn more.</div>
+      <button class="cta-button" id="lose-cta-button">PLAY AGAIN</button>
     </div>
   </div>
 

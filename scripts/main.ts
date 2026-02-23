@@ -8,6 +8,8 @@ const TREE_MIN_DISTANCE = 3.5
 const CHOP_HIT_RADIUS = 1.2
 const BASE_RADIUS = 1.4
 const BASE_CONVERT_INTERVAL = .8
+const GAME_TIME = 19
+const MONEY_GOAL = 111
 
 const tweenGroup = new Group()
 const textureLoader = new THREE.TextureLoader()
@@ -361,10 +363,19 @@ let woodCount = 0
 let money = 0
 let prevWood = -1
 let prevMoney = -1
+let prevTime = -1
 let baseConvertTimer = 0
+let timeLeft = GAME_TIME
+let gameStatus: 'playing' | 'win' | 'lose' = 'playing'
+let endOverlayShown = false
 
 const woodValueEl = document.getElementById('wood-value') as HTMLSpanElement
 const moneyValueEl = document.getElementById('money-value') as HTMLSpanElement
+const timeValueEl = document.getElementById('time-value') as HTMLSpanElement
+const goalValueEl = document.getElementById('goal-value') as HTMLSpanElement
+goalValueEl.textContent = String(MONEY_GOAL + ' $')
+const winOverlayEl = document.getElementById('win-overlay') as HTMLDivElement
+const loseOverlayEl = document.getElementById('lose-overlay') as HTMLDivElement
 
 const convertSound = new Audio('/public/sounds/convert.mp3')
 convertSound.volume = .4
@@ -437,9 +448,17 @@ function animate(): void {
     }
 
     if (money !== prevMoney) {
-        moneyValueEl.textContent = money.toFixed(0)
+        moneyValueEl.textContent = money.toFixed(0) + ' $'
         trigerHudPop(moneyValueEl)
         prevMoney = money
+    }
+
+    const shownTime = Math.ceil(timeLeft)
+
+    if (shownTime !== prevTime) {
+        timeValueEl.textContent = String(shownTime)
+        trigerHudPop(timeValueEl)
+        prevTime = shownTime
     }
 
     if (isPlayerInBaseZone() && woodCount > 0 && baseConvertTimer <= 0) {
@@ -450,8 +469,26 @@ function animate(): void {
 
         convertSound.currentTime = 0
         void convertSound.play().catch(() => { })
+    }
 
-        console.log('wood: ', woodCount, 'money: ', money)
+    // Timer
+    if (gameStatus === 'playing') {
+        timeLeft = Math.max(0, timeLeft - delta)
+        if (money >= MONEY_GOAL) {
+            gameStatus = 'win'
+        } else if (timeLeft <= 0) {
+            gameStatus = 'lose'
+        }
+    }
+
+    if (!endOverlayShown && gameStatus !== 'playing') {
+        endOverlayShown = true
+
+        if (gameStatus === 'win') {
+            winOverlayEl.classList.remove('hidden')
+        } else if (gameStatus === 'lose') {
+            loseOverlayEl.classList.remove('hidden')
+        }
     }
 
     renderer.render(scene, camera)
