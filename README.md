@@ -51,7 +51,6 @@ npm run preview
 ## Notes
 
 - iPhone / Safari may block autoplay audio. Theme/SFX should be started after the first user interaction.
-- This is still a prototype stage project: most gameplay logic is currently in `scripts/main.ts`.
 
 ## Next Improvements (TODO)
 
