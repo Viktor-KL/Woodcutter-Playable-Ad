@@ -7,7 +7,7 @@ const WORLD_LIMIT = 18
 const TREE_MIN_DISTANCE = 3.5
 const CHOP_HIT_RADIUS = 1.2
 const BASE_RADIUS = 1.4
-const BASE_CONVERT_INTERVAL = .3
+const BASE_CONVERT_INTERVAL = .4
 const GAME_TIME = 19
 const MONEY_GOAL = 111
 
@@ -394,8 +394,8 @@ function trigerHudPop(el: HTMLElement): void {
 }
 
 // Sound effects
-const convertSound = new Audio('/sounds/convert.mp3')
-convertSound.volume = 1
+const convertSound = new Audio('/sounds/convert-sound.mp3')
+convertSound.volume = .3
 
 const winSound = new Audio('/sounds/game-win.wav')
 const looseSound = new Audio('/sounds/game-lost.wav')
