@@ -7,7 +7,7 @@ const WORLD_LIMIT = 18
 const TREE_MIN_DISTANCE = 3.5
 const CHOP_HIT_RADIUS = 1.2
 const BASE_RADIUS = 1.4
-const BASE_CONVERT_INTERVAL = .8
+const BASE_CONVERT_INTERVAL = .3
 const GAME_TIME = 19
 const MONEY_GOAL = 111
 
@@ -326,6 +326,15 @@ joyBase.addEventListener('pointerdown', (e: PointerEvent) => {
 
     joyBase.setPointerCapture(e.pointerId)
     updateJoystick(e.clientX, e.clientY)
+
+    if (!musicUnlocked) {
+        musicUnlocked = true
+        tryPlayThemeMusic()
+    }
+
+    if (!gameStarted) {
+        gameStarted = true
+    }
 })
 
 joyBase.addEventListener('pointermove', (e: PointerEvent) => {
@@ -368,6 +377,7 @@ let baseConvertTimer = 0
 let timeLeft = GAME_TIME
 let gameStatus: 'playing' | 'win' | 'lose' = 'playing'
 let endOverlayShown = false
+let gameStarted = false
 
 const woodValueEl = document.getElementById('wood-value') as HTMLSpanElement
 const moneyValueEl = document.getElementById('money-value') as HTMLSpanElement
@@ -377,13 +387,26 @@ goalValueEl.textContent = String(MONEY_GOAL + ' $')
 const winOverlayEl = document.getElementById('win-overlay') as HTMLDivElement
 const loseOverlayEl = document.getElementById('lose-overlay') as HTMLDivElement
 
-const convertSound = new Audio('/public/sounds/convert.mp3')
-convertSound.volume = .4
-
 function trigerHudPop(el: HTMLElement): void {
     el.classList.remove('pop')
     void el.offsetWidth
     el.classList.add('pop')
+}
+
+// Sound effects
+const convertSound = new Audio('/sounds/convert.mp3')
+convertSound.volume = 1
+
+const winSound = new Audio('/sounds/game-win.wav')
+const looseSound = new Audio('/sounds/game-lost.wav')
+
+const themeMusic = new Audio('/sounds/music.mp3')
+themeMusic.volume = .3
+let musicUnlocked = false
+
+function tryPlayThemeMusic(): void {
+    if (gameStatus !== 'playing') return
+    void themeMusic.play().catch(() => { })
 }
 
 // Animate
@@ -461,7 +484,7 @@ function animate(): void {
         prevTime = shownTime
     }
 
-    if (isPlayerInBaseZone() && woodCount > 0 && baseConvertTimer <= 0) {
+    if (isPlayerInBaseZone() && woodCount > 0 && baseConvertTimer <= 0 && gameStatus === 'playing') {
         const woodPrice = THREE.MathUtils.randFloat(10, 20)
         woodCount -= 1
         money += woodPrice
@@ -472,7 +495,7 @@ function animate(): void {
     }
 
     // Timer
-    if (gameStatus === 'playing') {
+    if (gameStatus === 'playing' && gameStarted) {
         timeLeft = Math.max(0, timeLeft - delta)
         if (money >= MONEY_GOAL) {
             gameStatus = 'win'
@@ -485,9 +508,13 @@ function animate(): void {
         endOverlayShown = true
 
         if (gameStatus === 'win') {
+            winSound.play()
+            themeMusic.pause()
             winOverlayEl.classList.remove('hidden')
         } else if (gameStatus === 'lose') {
             loseOverlayEl.classList.remove('hidden')
+            themeMusic.pause()
+            looseSound.play()
         }
     }
 
